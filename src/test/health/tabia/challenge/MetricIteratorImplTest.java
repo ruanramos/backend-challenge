@@ -1,8 +1,7 @@
-﻿package health.tabia.challenge;
+package health.tabia.challenge;
+
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MetricIteratorImplTest {
 

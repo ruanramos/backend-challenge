@@ -1,4 +1,4 @@
-﻿package health.tabia.challenge;
+package health.tabia.challenge;
 
 public class MetricIteratorImpl implements MetricIterator {
 

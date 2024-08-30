@@ -1,18 +1,18 @@
-﻿package health.tabia.challenge;
+package health.tabia.challenge;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class MetricStoreImplTest {
 
-    @org.junit.jupiter.api.Test
+    @Test
     void insert() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void removeAll() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void query() {
     }
 }
