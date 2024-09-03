@@ -19,7 +19,7 @@ public class MetricStoreImpl implements MetricStore {
     ConcurrentHashMap<String, Set<Metric>> metrics = new ConcurrentHashMap<>();
 
     /*
-     * I did not synchonize the insert method since I'm using
+     * I did not synchronize the insert method since I'm using
      * a concurrent hashmap which is thread safe using the right
      * methods. putIfAbsent runs atomically. The only thing that
      * could be a problem is the add method on the set, but since

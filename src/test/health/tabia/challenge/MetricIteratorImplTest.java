@@ -63,7 +63,7 @@ class MetricIteratorImplTest {
     }
 
     @Test
-    void currentThrowAfterMoveNextReturnsFalse() {
+    void currentThrowsAfterMoveNextReturnsFalse() {
         Set<Metric> metricSet = metricStore.getMetrics().get(uuids.get(0));
         MetricIterator iterator = new MetricIteratorImpl(metricSet, timestamps.get(0), timestamps.get(metricsToInsert - 1));
         for (int i = 0; i < 10; i++) {
