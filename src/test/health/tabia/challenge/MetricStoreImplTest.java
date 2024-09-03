@@ -8,12 +8,14 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MetricStoreImplTest {
 
     private static List<Long> timestampsMock;
+    int executorTimeoutInSeconds = 10;
 
     @BeforeAll
     static void Setup() {
@@ -34,16 +36,19 @@ class MetricStoreImplTest {
     @Test
     void removeAll() {
         MetricStoreImpl metricStore = new MetricStoreImpl();
+        int expectedSetSize = 0;
+
         for (int i = 0; i < 10; i++) {
             metricStore.insert(new Metric("metric_name", System.currentTimeMillis()));
         }
         metricStore.removeAll("metric_name");
-        assertEquals(0, metricStore.getMetrics().entrySet().size());
+        assertEquals(expectedSetSize, metricStore.getMetrics().entrySet().size());
     }
 
     @Test
     void query() {
         MetricStoreImpl metricStore = new MetricStoreImpl();
+        int expectedIteratorCount = 50;
 
         for (int i = 0; i < 100; i++) {
             long timestamp = timestampsMock.get(i);
@@ -54,7 +59,7 @@ class MetricStoreImplTest {
         while (iterator.moveNext()) {
             count++;
         }
-        assertEquals(50, count);
+        assertEquals(expectedIteratorCount, count);
     }
 
     @Test
@@ -63,6 +68,7 @@ class MetricStoreImplTest {
         ExecutorService executor = Executors.newFixedThreadPool(10);
 
         int metricsToInsert = 100000;
+        int expectedSetSize = 1;
 
         for (int i = 0; i < metricsToInsert; i++) {
             MyInsertRunnable insertRunnable = new MyInsertRunnable(metricStore, "metric_name");
@@ -71,19 +77,14 @@ class MetricStoreImplTest {
 
         executor.shutdown();
         try {
-            executor.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS);
+            executor.awaitTermination(executorTimeoutInSeconds, TimeUnit.SECONDS);
 
-            assertEquals(1, metricStore.getMetrics().entrySet().size());
+            assertEquals(expectedSetSize, metricStore.getMetrics().entrySet().size());
             assertEquals(metricsToInsert, metricStore.getMetrics().get("metric_name").size());
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
-
-    /*
-     * Add comments
-     *
-     * */
 
     @Test
     void CanInsertDifferentMetricsConcurrently() {
@@ -101,7 +102,7 @@ class MetricStoreImplTest {
 
         executor.shutdown();
         try {
-            executor.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS);
+            executor.awaitTermination(executorTimeoutInSeconds, java.util.concurrent.TimeUnit.SECONDS);
 
             assertEquals(metricsToInsert, metricStore.getMetrics().entrySet().size());
             assertEquals(repeatedMetrics, metricStore.getMetrics().entrySet().stream().findFirst().get().getValue().size());
@@ -133,7 +134,7 @@ class MetricStoreImplTest {
 
         executor.shutdown();
         try {
-            executor.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS);
+            executor.awaitTermination(executorTimeoutInSeconds, java.util.concurrent.TimeUnit.SECONDS);
 
             assertEquals(0, metricStore.getMetrics().entrySet().size());
         } catch (InterruptedException e) {
@@ -154,7 +155,6 @@ class MetricStoreImplTest {
         @Override
         public void run() {
             metricStore.insert(new Metric(name, System.currentTimeMillis()));
-            //metricStore.insert(new Metric("metric " + ((int) ((Math.random() + 0.005f) * 10)) / 10f, System.currentTimeMillis()));
         }
     }
 
@@ -170,7 +170,6 @@ class MetricStoreImplTest {
         @Override
         public void run() {
             try {
-                //System.out.println("Running task on thread " + Thread.currentThread().getName());
                 metricStore.removeAll(name);
             } catch (Exception e) {
                 throw new RuntimeException(e);
